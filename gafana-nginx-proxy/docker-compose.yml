@@ -1,0 +1,45 @@
+# uncomment
+
+version: "3"
+services:
+  nginx-proxy:
+    image: "nginx:1.21"
+    container_name: gnproxy-nginx-demo
+    ports:
+      - "8000:80"
+    networks:
+      - demo-network
+    volumes:
+      # - nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    restart: always
+    command: [ nginx-debug, '-g', 'daemon off;' ]
+  influx:
+    image: "influxdb:1.8"
+    # image: "influxdb:1.6"
+    container_name: gnproxy-influxdb-demo
+    networks:
+      - demo-network
+    environment:
+      - INFLUXDB_DB=demo
+    volumes:
+      - ./influxdb:/docker-entrypoint-initdb.d
+    #   - demo-influx-data:/var/lib/influxdb
+    restart: always
+  grafana:
+    image: "grafana/grafana-oss"
+    container_name: gnproxy-grafana-demo
+    networks:
+      - demo-network
+    volumes:
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+      # - demo-grafana-data:/var/lib/grafana
+    restart: always
+#
+# volumes:
+#   demo-influx-data:
+#   demo-grafana-data:
+
+#
+networks:
+  demo-network:
